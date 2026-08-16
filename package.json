@@ -1,0 +1,22 @@
+{
+  "name": "gravelcalc",
+  "version": "1.1.0",
+  "description": "A two-way desktop gravel calculator with bulk Excel processing, built with Electron.",
+  "main": "main.js",
+  "author": "GravelCalc",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/calc.test.js && node test/bulk.test.js",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

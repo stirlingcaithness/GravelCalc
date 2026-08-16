@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>GravelCalc</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="light">
+<header class="app-header">
+  <div class="brand"><span class="logo">▲</span><h1>GravelCalc</h1></div>
+  <div class="header-actions"><nav class="tabs">
+    <button class="tab active" data-tab="calc">Calculator</button>
+    <button class="tab" data-tab="history">History</button>
+    <button class="tab" data-tab="formulas">Formulas</button>
+    <button class="tab" data-tab="bulk">Bulk Calculator</button>
+  </nav><button id="themeToggle" class="icon-btn" title="Toggle light/dark">🌙</button></div>
+</header>
+
+<main id="tab-calc" class="tab-panel active">
+  <section class="mode-switch"><button id="modeA" class="mode-btn active"><strong>How much gravel do I need?</strong><span>Enter road size → get gravel required</span></button><button id="modeB" class="mode-btn"><strong>How far will my gravel go?</strong><span>Enter gravel available → get distance covered</span></button></section>
+  <div class="grid">
+    <section class="card"><h2>Inputs</h2>
+      <div class="field" data-only="A"><label>Road length</label><div class="input-row"><input id="length" type="number" min="0" step="any" placeholder="100"><select id="lengthUnit"><option value="m">m</option><option value="km">km</option></select></div></div>
+      <div class="field hidden" data-only="B"><label>Gravel available</label><div class="input-row"><input id="gravelAmount" type="number" min="0" step="any" placeholder="64"><select id="gravelUnit"><option value="t">tonnes</option><option value="kg">kg</option></select></div></div>
+      <div class="field"><label>Road width</label><div class="input-row"><input id="width" type="number" min="0" step="any" placeholder="4"><select id="widthUnit"><option value="m">m</option><option value="km">km</option></select></div></div>
+      <div class="field"><label>Layer thickness / depth</label><div class="input-row"><input id="thickness" type="number" min="0" step="any" placeholder="100"><select id="thicknessUnit"><option value="mm">mm</option><option value="cm">cm</option><option value="m">m</option></select></div></div>
+      <div class="field"><label>Gravel density <span class="hint" title="Typical crushed gravel is about 1600 kg/m³, which is 1.6 t/m³.">?</span></label><div class="input-row"><input id="density" type="number" min="0" step="any" value="1600"><select id="densityUnit"><option value="kgm3">kg/m³</option><option value="tm3">t/m³</option></select></div></div>
+      <div class="field"><label>Waste / compaction allowance</label><div class="input-row"><input id="wastePct" type="number" min="0" step="any" value="0"><span class="unit-static">%</span></div></div>
+      <div class="field" data-only="A"><label>Show result in</label><select id="resultUnit"><option value="t">tonnes</option><option value="kg">kg</option></select></div>
+      <div class="field hidden" data-only="B"><label>Show distance in</label><select id="lengthUnitOut"><option value="m">m</option><option value="km">km</option></select></div>
+      <div class="actions"><button id="calcBtn" class="primary">Calculate</button><button id="saveBtn" class="ghost" disabled>Save to history</button></div><div id="errors" class="errors"></div>
+    </section>
+    <section class="card result-card"><h2>Result</h2><div id="resultBig" class="result-big">—</div><div id="resultSub" class="result-sub"></div><h3>Working</h3><ul id="breakdown" class="breakdown"><li>Enter values and press Calculate.</li></ul><p class="formula-link">Want the maths behind this? <a href="#" id="gotoFormulas">See the formulas →</a></p></section>
+  </div>
+</main>
+
+<section id="tab-history" class="tab-panel">
+  <div class="history-toolbar"><h2>Saved calculations</h2><div class="spacer"></div><button id="exportXlsx" class="primary">Export to Excel</button><button id="clearHistory" class="danger">Clear all</button></div><div id="exportMsg" class="export-msg"></div>
+  <div class="table-wrap"><table><thead><tr><th>Date/Time</th><th>Mode</th><th>Length/Gravel</th><th>Width</th><th>Thickness</th><th>Density</th><th>Waste %</th><th>Result</th><th>Unit</th><th></th></tr></thead><tbody id="historyBody"><tr><td colspan="10" class="empty">No saved calculations yet.</td></tr></tbody></table></div>
+</section>
+
+<section id="tab-formulas" class="tab-panel">
+  <div class="formula-toolbar"><h2>How the calculations work</h2><div class="spacer"></div><button id="copyFormulas" class="primary">📋 Copy formulas</button><span id="copyMsg" class="copy-msg"></span></div>
+  <div class="card formula-card"><p>All values are converted to metres and kilograms internally. Length/width: km × 1000. Thickness: mm ÷ 1000, cm ÷ 100. Density: t/m³ × 1000. Then:</p><div class="formula-block"><div class="formula">Volume (m³) = Length (m) × Width (m) × Thickness (m)</div><div class="formula">Weight (kg) = Volume (m³) × Density (kg/m³)</div><div class="formula">Weight (tonnes) = Weight (kg) ÷ 1000</div></div></div>
+  <div class="card formula-card"><h3><span class="mode-pill pill-a">Mode A</span> How much gravel do I need?</h3><div class="formula-block"><div class="formula">Total = (Length × Width × Thickness × Density) × (1 + Waste% ÷ 100)</div></div></div>
+  <div class="card formula-card"><h3><span class="mode-pill pill-b">Mode B</span> How far will my gravel go?</h3><div class="formula-block"><div class="formula">Usable kg = Available kg ÷ (1 + Waste% ÷ 100)</div><div class="formula">Length = (Usable kg ÷ Density) ÷ (Width × Thickness)</div></div></div>
+</section>
+
+<section id="tab-bulk" class="tab-panel">
+  <div class="bulk-toolbar"><h2>Bulk Calculator</h2><div class="spacer"></div><button id="downloadTemplate" class="ghost">Download template</button><button id="uploadBulk" class="primary">Upload Excel file</button><button id="exportBulkXlsx" class="ghost" disabled>Export results to Excel</button><button id="exportBulkCsv" class="ghost" disabled>Export CSV</button><button id="addBulkHistory" class="primary" disabled>Add valid results to History</button></div>
+  <div id="bulkMsg" class="export-msg"></div>
+  <div class="summary-grid"><div class="summary-card"><span>Total rows</span><strong id="sumTotal">0</strong></div><div class="summary-card ok"><span>Succeeded</span><strong id="sumOk">0</strong></div><div class="summary-card bad"><span>Failed</span><strong id="sumFail">0</strong></div><div class="summary-card"><span>Total Mode A gravel</span><strong id="sumTonnes">0 t</strong></div></div>
+  <div class="card bulk-help"><strong>Spreadsheet headers:</strong> Mode, Length, LengthUnit, Width, WidthUnit, Thickness, ThicknessUnit, Density, DensityUnit, Waste%, GravelAmount, GravelUnit, ResultUnit, DistanceUnit. Use Mode A for gravel needed and Mode B for distance covered.</div>
+  <div class="table-wrap"><table><thead><tr><th>Row</th><th>Mode</th><th>Length/Gravel</th><th>Width</th><th>Thickness</th><th>Density</th><th>Waste %</th><th>Volume m³</th><th>Result</th><th>Unit</th><th>Status</th></tr></thead><tbody id="bulkBody"><tr><td colspan="11" class="empty">Upload a bulk Excel file to calculate results.</td></tr></tbody></table></div>
+</section>
+
+<script src="calc.js"></script><script src="renderer.js"></script>
+</body></html>

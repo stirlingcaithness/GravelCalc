@@ -1,0 +1,35 @@
+appId: com.gravelcalc.app
+productName: GravelCalc
+directories:
+  output: dist
+  buildResources: build
+files:
+  - main.js
+  - preload.js
+  - src/**/*
+  - build/icon.ico
+  - "!test/**/*"
+extraResources:
+  - from: README.md
+    to: README.md
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: GravelCalc
+  menuCategory: Utilities
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  artifactName: ${productName}-Setup-${version}.${ext}
