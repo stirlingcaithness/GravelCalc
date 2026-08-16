@@ -1,40 +1,63 @@
 name: Build and Release Windows Installer
 
+# ------------------------------------------------------------
+# Triggers
+#   - Runs automatically when you push a version tag (e.g. v1.1.0)
+#   - Can also be started manually from the Actions tab
+# ------------------------------------------------------------
 on:
   push:
     tags:
       - "v*"
-
   workflow_dispatch:
+
+# ------------------------------------------------------------
+# Permissions
+#   contents: write is required so electron-builder can
+#   create the GitHub Release and upload the installer.
+# ------------------------------------------------------------
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
 
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout source
+      # 1. Get your source code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      # 2. Set up Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: npm
 
+      # 3. Install dependencies (clean, reproducible install)
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
+      # 4. Run your tests (matches "test" script in package.json)
+      #    Remove this step if you don't want the build to fail on test errors.
       - name: Run tests
         run: npm test
 
-      - name: Build installer
+      # 5. Build the Windows installer with electron-builder
+      #    GH_TOKEN is provided automatically by GitHub Actions.
+      - name: Build Windows installer
         run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      # 6. Upload the installer as a downloadable workflow artifact
+      #    (handy even if the GitHub Release step is skipped)
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: |
+          name: GravelCalc-Windows-Installer
+          path: |
             dist/*.exe
+            dist/*.blockmap
+          if-no-files-found: warn
