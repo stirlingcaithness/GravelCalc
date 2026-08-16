@@ -9,7 +9,9 @@ node_modules/
 dist/
 release/
 out/
-build/
+# Ignore build output, but keep the icon resource
+build/*
+!build/icon.ico
 
 # Packaged app artifacts
 *.exe
